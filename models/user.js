@@ -96,7 +96,13 @@ class User {
    *   {username, first_name, last_name, phone}
    */
 
-  static async messagesFrom(username) { }
+  static async messagesFrom(username) {
+    const results = await db.query(
+        `SELECT id,from_username,body,sent_at,read_at
+        FROM messages WHERE from_username=$1`,
+        [username]);
+        return results.rows;
+  }
 
   /** Return messages to this user.
    *
@@ -106,7 +112,13 @@ class User {
    *   {username, first_name, last_name, phone}
    */
 
-  static async messagesTo(username) { }
+  static async messagesTo(username) {
+    const results = await db.query(`
+    SELECT id,from_username,body,sent_at,read_at
+    FROM messages WHERE to_username = $1`,
+    [username]);
+    return results.rows;
+  }
 }
 
 

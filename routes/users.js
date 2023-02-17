@@ -4,7 +4,7 @@ const router = express.Router();
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const config = require('../config')
-const {ensureLoggedIn} = require('../middleware/auth');
+const {ensureLoggedIn,ensureCorrectUser} = require('../middleware/auth');
 
 
 /** GET / - get list of users.
@@ -26,7 +26,7 @@ router.get('/', ensureLoggedIn, async (req,res,next) => {
  * => {user: {username, first_name, last_name, phone, join_at, last_login_at}}
  *
  **/
-router.get('/:username',ensureLoggedIn,async (req,res,next) => {
+router.get('/:username',ensureLoggedIn,ensureCorrectUser,async (req,res,next) => {
     try{
         const user = await User.get(req.params.username);
         if(user){
@@ -49,7 +49,16 @@ router.get('/:username',ensureLoggedIn,async (req,res,next) => {
  *                 from_user: {username, first_name, last_name, phone}}, ...]}
  *
  **/
+router.get('/:username/to',ensureLoggedIn,ensureCorrectUser, async (req,res,next) => {
+    try{
+        let messages = await User.messagesTo(req.params.username);
+        return res.json(messages);
 
+    }catch(e){
+        return next(e);
+
+    }
+})
 
 /** GET /:username/from - get messages from user
  *
@@ -60,6 +69,14 @@ router.get('/:username',ensureLoggedIn,async (req,res,next) => {
  *                 to_user: {username, first_name, last_name, phone}}, ...]}
  *
  **/
+router.get('/:username/from',ensureLoggedIn,ensureCorrectUser, async (req,res,next) => {
+    try{
+        let messages = await User.messagesFrom(req.params.username);
+        return res.json(messages);
 
+    }catch(e){
+        return next(e);
+    }
+})
 
 module.exports = router;
