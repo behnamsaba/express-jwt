@@ -29,9 +29,9 @@ class User {
     const result = await db.query(
       `INSERT INTO users
       (username, password,first_name,last_name,phone,join_at,last_login_at)
-      VALUES ($1,$2,$3,$4,$5,$6,to_timestamp($7))
+      VALUES ($1,$2,$3,$4,$5,$6,current_timestamp)
       RETURNING username,password, first_name,last_name, phone`,
-      [username,hashedPassword,first_name,last_name,phone,join_at,last_login_at]);
+      [username,hashedPassword,first_name,last_name,phone,join_at]);
 
       return result.rows;
 
@@ -40,13 +40,13 @@ class User {
   /** Authenticate: is this username/password valid? Returns boolean. */
 
   static async authenticate(username, password) {
-    let last_login_at = Date.now();
+    
     const result = await db.query(
       `UPDATE users
-      SET last_login_at = to_timestamp($1)
-      WHERE username=$2
+      SET last_login_at = current_timestamp
+      WHERE username=$1
       RETURNING *`,
-      [last_login_at,username]
+      [username]
     );
     let user = result.rows[0];
     if(user){
@@ -57,7 +57,20 @@ class User {
 
   /** Update last_login_at for user */
 
-  static async updateLoginTimestamp(username) { }
+  static async updateLoginTimestamp(username) {
+    const result = await db.query(
+      `UPDATE users
+      SET last_login_at = current_timestamp
+      WHERE username=$1
+      RETURNING *`,
+      [username]
+    );
+    let user = result.rows[0];
+    if(user){
+      if(await bcypt.compare(password,user.password)){
+          return true
+      }}
+  }
 
   /** All: basic info on all users:
    * [{username, first_name, last_name, phone}, ...] */

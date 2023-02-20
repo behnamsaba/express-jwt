@@ -16,6 +16,9 @@ const {ensureLoggedIn} = require('../middleware/auth');
 
 router.post('/login',async (req,res,next) => {
     try{
+        if(req.user){
+            res.redirect('/')
+        }
         const { username, password } = req.body;
         if( !username || !password ){
             return next(new ExpressError("Username and password are required",404))
@@ -42,6 +45,9 @@ router.post('/login',async (req,res,next) => {
 
 router.post('/register',async (req,res,next) => {
     try{
+        if(req.user){
+            return res.redirect('/');
+        }
         const { username , password , first_name, last_name , phone } = req.body;
         let user = await User.register({username,password,first_name,last_name,phone});
         let payload = {username};
