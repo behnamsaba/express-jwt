@@ -3,7 +3,7 @@ const ExpressError = require('../expressError');
 const router = express.Router();
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
-const config = require('../config')
+const config = require('../config');
 const {ensureLoggedIn,ensureCorrectUser} = require('../middleware/auth');
 
 
